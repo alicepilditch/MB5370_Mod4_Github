@@ -279,3 +279,34 @@ ggplot(mpg, aes(displ, hwy)) +
     y = "Highway fuel economy (mpg)",
     colour = "Car type"
   )
+
+
+
+#3.10 Assignment: End-to-end data analysis in R
+# getting my qfish data into R
+qfish <- read.csv("C:/Users/alice/OneDrive/Desktop/github/qfish.csv")
+qfish
+
+# Tidying my data 
+raw_data <- read.csv("C:/Users/alice/OneDrive/Desktop/github/qfish.csv", header = FALSE, stringsAsFactors = FALSE)
+
+# remove the first 2 rows and rename columns 
+eel_data <- raw_data[-c(1:2), ]
+colnames(eel_data) <- c("Year", "Licences", "Days", "Species", "Tonnes")
+
+# removing rows with 'grand total', 'N/A', or text in "year' column
+eel_data <- eel_data %>%
+  filter(!Year %in% c("Grand Total", "2024 incomplete", "N/A"),
+         !is.na(Licences),
+         !Year == "CalendarYear")
+
+# converting columns to proper types 
+eel_data <- eel_data %>%
+  mutate(
+    Year = as.numeric(Year),
+    Licences = as.numeric(ifelse(Licences == "N/A", NA, Licences)),
+    Days = as.numeric(ifelse(Days == "N/A", NA, Days)),
+    Tonnes = as.numeric(ifelse(Tonnes == "N/A", NA, Tonnes))
+  )
+
+eel_data
