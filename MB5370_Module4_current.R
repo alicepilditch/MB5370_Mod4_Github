@@ -175,5 +175,74 @@ ggplot(data = mpg) +
 # this is a template: ggplot(data = <DATA>) + <GEOM_FUNCTION> (mapping = aes(<MAPPINGS>), stat = <STAT>, position = <POSITION>) + <FACET_FUNCTION>
 
 
-    
-  
+#2.25 Assignment - Plot deconstruction
+# Loading packages
+library(dplyr)
+library(ggplot2)
+
+# Inputting my data 
+croc_data <- data.frame(
+  Region = c(
+    rep("Southern Gulf Plains", 4),
+    rep("Northern Gulf Plains", 3),
+    rep("North-western Cape York Peninsula", 7),
+    rep("North-eastern Cape York Peninsula", 4),
+    rep("Lakefield National Park", 4),
+    rep("East Coast Plains", 7),
+    rep("Burdekin River Catchment", 3),
+    rep("Fitzroy River Catchment", 2)
+  ),
+  Year = c(1996,1997,1998,1999,
+           1997,1998,1999,
+           1994,1995,1996,1997,1998,1999,2000,
+           1994,1996,1999,2000,
+           1997,1998,1999,2000,
+           1994,1995,1996,1997,1998,1999,2000,
+           1996,1999,2000,
+           1998,1999),
+  Km_surveyed = c(46.0,239.1,134.9,130.4,
+                  93.6,90.8,82.9,
+                  180.5,64.0,183.5,168.4,104.9,144.7,64.8,
+                  163.2,15.0,77.7,157.6,
+                  135.1,202.0,243.0,177.1,
+                  18.5,32.0,87.0,374.4,148.3,130.6,268.0,
+                  8.5,27.5,21.3,
+                  91.3,67.7),
+  Hatchlings = c(2,68,5,9,
+                 6,4,2,
+                 337,309,229,118,101,209,280,
+                 9,0,20,56,
+                 45,69,45,61,
+                 5,3,11,42,54,5,30,
+                 0,0,0,
+                 7,0)
+)
+
+# Calculating hatchlings per km for each record 
+croc_data <- croc_data %>%
+  mutate(Hatchlings_per_km = Hatchlings / Km_surveyed)
+
+# Summarising mean and SD by region
+summary_data <- croc_data %>%
+  group_by(Region) %>%
+  summarise(
+    mean_hatchlings = mean(Hatchlings_per_km, na.rm = TRUE),
+    sd_hatchlings = sd(Hatchlings_per_km, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Plotting the data
+ggplot(summary_data, aes(x = reorder(Region, -mean_hatchlings), y = mean_hatchlings)) +
+  geom_col(fill = "#3BA99C") +
+  geom_errorbar(aes(ymin = mean_hatchlings - sd_hatchlings,
+                    ymax = mean_hatchlings + sd_hatchlings),
+                width = 0.2, color = "black") +
+  labs(
+    title = "Mean Hatchlings per km by Biogeographical Region",
+    x = "Biogeographical Region",
+    y = "Mean Hatchlings per km"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.title = element_text(face = "bold", size = 14))
+
