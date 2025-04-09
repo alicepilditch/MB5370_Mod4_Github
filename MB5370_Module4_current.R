@@ -246,3 +246,36 @@ ggplot(summary_data, aes(x = reorder(Region, -mean_hatchlings), y = mean_hatchli
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         plot.title = element_text(face = "bold", size = 14))
 
+# Workshop 3
+#3.1 Labels
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se.e = FALSE) +
+  labs(title = "Fuel efficiency generally decreases with engine size")
+# the error in this code is the se.e, it should just be se
+
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  labs(title = "Fuel efficiency generally decreases with engine size")
+# this code will plot a scatterplot of displacement (displ) vs milage (hwy), points will be coloured by vehicle class, have a title, and a trend line without confidence interval (se = FALSE)
+
+# this code adds subtitle and caption
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(color = class)) +
+  geom_smooth(se = FALSE) +
+  labs(
+    title = "Fuel efficiency generally decreases with engine size",
+    subtitle = "Two seaters (sports cars) are an exception because of their light weight",
+    caption = "Data from fueleconomy.gov"
+  )
+
+# this code replaces axis labels and legend titles 
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(aes(colour = class)) +
+  geom_smooth(se = FALSE) +
+  labs(
+    x = "Engine displacement (L)",
+    y = "Highway fuel economy (mpg)",
+    colour = "Car type"
+  )
