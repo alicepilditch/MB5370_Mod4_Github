@@ -5,26 +5,86 @@ date: "2025-04-09"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r}
+#3.10 Assignment: End-to-end data analysis in R
+# getting my qfish data into R
+qfish <- read_csv("../data/qfish.csv")
+
+# Tidying my data 
+raw_data <- read.csv("../data/qfish.csv", header = FALSE, stringsAsFactors = FALSE)
+
+# remove the first 2 rows and rename columns 
+eel_data <- raw_data[-c(1:2), ]
+colnames(eel_data) <- c("Year", "Licences", "Days", "Species", "Tonnes")
+
+# removing rows with 'grand total', 'N/A', or text in "year' column
+eel_data <- eel_data %>%
+  filter(!Year %in% c("Grand Total", "2024 incomplete", "N/A"),
+         !is.na(Licences),
+         !Year == "CalendarYear")
+
+# converting columns to proper types 
+eel_data <- eel_data %>%
+  mutate(
+    Year = as.numeric(Year),
+    Licences = as.numeric(ifelse(Licences == "N/A", NA, Licences)),
+    Days = as.numeric(ifelse(Days == "N/A", NA, Days)),
+    Tonnes = as.numeric(ifelse(Tonnes == "N/A", NA, Tonnes))
+  )
+
+eel_data
+
 ```
 
-## R Markdown
+```{r}
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# Step 1: Read raw data (no headers)
+raw_data <- read.csv("../data/qfish.csv", header = FALSE, stringsAsFactors = FALSE)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# Step 2: Remove header rows
+eel_data <- raw_data[-c(1:2), ]
 
-```{r cars}
-summary(cars)
+# Step 3: Rename columns
+colnames(eel_data) <- c("Year", "Licences", "Days", "Species", "Tonnes")
+
+# Step 4: Remove rows with unwanted strings
+eel_data <- eel_data %>%
+  filter(
+    !Year %in% c("Grand Total", "2024 incomplete", "CalendarYear", "N/A"),
+    !Licences %in% c("N/A"),
+    !Days %in% c("N/A"),
+    !Tonnes %in% c("N/A")
+  )
+
+# Step 5: Convert data types (now safe)
+eel_data <- eel_data %>%
+  mutate(
+    Year = as.numeric(Year),
+    Licences = as.numeric(Licences),
+    Days = as.numeric(Days),
+    Tonnes = as.numeric(Tonnes)
+  )
+
+eel_data <- eel_data %>%
+  mutate(
+    Year = as.numeric(str_trim(Year)),
+    Licences = as.numeric(na_if(str_trim(Licences), "")),
+    Days = as.numeric(na_if(str_trim(Days), "")),
+    Tonnes = as.numeric(na_if(str_trim(Tonnes), ""))
+  )
+
+# Making my plot
+ggplot(eel_data, aes(x = Year, y = Tonnes)) +
+  geom_line(color = "darkgreen", size = 1) +
+  geom_point(color = "black") +
+  labs(
+    title = "Total Eel Catch in Queensland Over Time",
+    x = "Year",
+    y = "Catch (Tonnes)"
+  ) +
+  theme_minimal()
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
