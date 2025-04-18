@@ -7,47 +7,23 @@ output: html_document
 
 ```{r}
 #3.10 Assignment: End-to-end data analysis in R
-# getting my qfish data into R
+# loading my qfish data into R
 qfish <- read_csv("../data/qfish.csv")
 
-# Tidying my data 
+# importing my raw data to be tidied
 raw_data <- read.csv("../data/qfish.csv", header = FALSE, stringsAsFactors = FALSE)
 
-# remove the first 2 rows and rename columns 
+# remove the first 2 rows of non-data and renaming columns with proper headings
 eel_data <- raw_data[-c(1:2), ]
 colnames(eel_data) <- c("Year", "Licences", "Days", "Species", "Tonnes")
 
-# removing rows with 'grand total', 'N/A', or text in "year' column
+# removing rows with invalid entries like 'grand total', 'N/A', or text in "year' column
 eel_data <- eel_data %>%
   filter(!Year %in% c("Grand Total", "2024 incomplete", "N/A"),
          !is.na(Licences),
          !Year == "CalendarYear")
 
 # converting columns to proper types 
-eel_data <- eel_data %>%
-  mutate(
-    Year = as.numeric(Year),
-    Licences = as.numeric(ifelse(Licences == "N/A", NA, Licences)),
-    Days = as.numeric(ifelse(Days == "N/A", NA, Days)),
-    Tonnes = as.numeric(ifelse(Tonnes == "N/A", NA, Tonnes))
-  )
-
-eel_data
-
-```
-
-```{r}
-
-# Step 1: Read raw data (no headers)
-raw_data <- read.csv("../data/qfish.csv", header = FALSE, stringsAsFactors = FALSE)
-
-# Step 2: Remove header rows
-eel_data <- raw_data[-c(1:2), ]
-
-# Step 3: Rename columns
-colnames(eel_data) <- c("Year", "Licences", "Days", "Species", "Tonnes")
-
-# Step 4: Remove rows with unwanted strings
 eel_data <- eel_data %>%
   filter(
     !Year %in% c("Grand Total", "2024 incomplete", "CalendarYear", "N/A"),
@@ -56,7 +32,15 @@ eel_data <- eel_data %>%
     !Tonnes %in% c("N/A")
   )
 
-# Step 5: Convert data types (now safe)
+# previewing cleaned data set
+eel_data
+
+```
+
+```{r}
+# WOrking with cleaned data set
+
+# converting character columns to numeric for analysis (now safe)
 eel_data <- eel_data %>%
   mutate(
     Year = as.numeric(Year),
@@ -65,6 +49,7 @@ eel_data <- eel_data %>%
     Tonnes = as.numeric(Tonnes)
   )
 
+# cleanup of any blanks just in case
 eel_data <- eel_data %>%
   mutate(
     Year = as.numeric(str_trim(Year)),
@@ -73,7 +58,7 @@ eel_data <- eel_data %>%
     Tonnes = as.numeric(na_if(str_trim(Tonnes), ""))
   )
 
-# Making my plot
+# creating a time series plot of eel catch by year
 ggplot(eel_data, aes(x = Year, y = Tonnes)) +
   geom_line(color = "darkgreen", size = 1) +
   geom_point(color = "black") +
