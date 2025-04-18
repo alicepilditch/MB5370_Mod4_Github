@@ -6,6 +6,9 @@ output: html_document
 ---
 
 ```{r}
+# Downloading necessary packages
+library(tidyverse)
+
 #3.10 Assignment: End-to-end data analysis in R
 # loading my qfish data into R
 qfish <- read_csv("../data/qfish.csv")
